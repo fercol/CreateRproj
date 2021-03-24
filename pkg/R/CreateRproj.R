@@ -12,7 +12,7 @@
 # ==== FUNCTIONS FOR R PROJECT: ====
 # ================================== #
 # Function to create R project:
-CreateRproj <- function(projName, mainDir) {
+CreateRproj <- function(projName, mainDir, git = FALSE, RstProj = FALSE) {
   # Project directory:
   projDir <- sprintf("%s%s/", mainDir, projName)
   
@@ -50,7 +50,14 @@ CreateRproj <- function(projName, mainDir) {
   }
   
   # Create R studio project file:
-  file.create(sprintf("%s%s.Rproj", projDir, projName))
+  if (RstProj) {
+    file.create(sprintf("%s%s.Rproj", mainDir, projName))
+  }
+  
+  # Setup git 
+  if (git) {
+    system(sprintf("cd %s\ngit init", projDir))
+  }
 }
 
 # Function to create a template for R code:
