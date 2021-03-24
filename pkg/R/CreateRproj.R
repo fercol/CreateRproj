@@ -16,14 +16,15 @@ CreateRproj <- function(projName, mainDir, git = FALSE, RstProj = FALSE) {
   # Project directory:
   projDir <- sprintf("%s%s/", mainDir, projName)
   
+  # Directory levels:
+  dirLevs <- list()
+  
   # Sub-directories for project:
-  projSubDirs <- c("01_Docs", "02_Code", "03_Data", "04_Results")
+  dirLevs$lev01 <- c("01docs", "02code", "03data", "04results")
   
   # Data sub-directories:
-  dataSubDir <- c("Tables", "Rdata")
-  
-  # Results sub-directories:
-  resSubDir <- c("Plots", "Tables", "Rdata")
+  dirLevs$lev02 <- list("03data" = c("tables", "rdata"),
+                        "04results" = c("plots", "tables", "rdata"))
   
   # ============================= #
   # ==== CREATE DIRECTORIES: ====
@@ -33,21 +34,42 @@ CreateRproj <- function(projName, mainDir, git = FALSE, RstProj = FALSE) {
     dir.create(projDir)
   }
   
-  # Create file structure:
-  for (subdir in projSubDirs) {
-    subDirPath <- sprintf("%s/%s/", projDir, subdir)
-    dir.create(sprintf("%s/%s/", projDir, subdir), showWarnings = FALSE)
-    if (subdir == "03_Data") {
-      for (subsubdir in dataSubDir) {
-        dir.create(sprintf("%s%s/", subDirPath, subsubdir), showWarnings = FALSE)
-      }
-    }
-    if (subdir == "04_Results") {
-      for (subsubdir in dataSubDir) {
-        dir.create(sprintf("%s%s/", subDirPath, subsubdir), showWarnings = FALSE)
-      }
+  # Create files:
+  for (lev1 in dirLevs$lev01) {
+    dir.create(sprintf("%s%s/", projDir, lev1), showWarnings = FALSE)
+  }
+  for (ii in 1:length(dirLevs$lev02)) {
+    lev1 <- names(dirLevs$lev02)[ii]
+    for (jj in 1:length(dirLevs$lev02[[lev1]])) {
+      lev2 <- dirLevs$lev02[[lev1]][jj]
+      dir.create(sprintf("%s%s/%s/", projDir, lev1, lev2), showWarnings = FALSE)
     }
   }
+  
+  # # Sub-directories for project:
+  # projSubDirs <- c("01_Docs", "02_Code", "03_Data", "04_Results")
+  # 
+  # # Data sub-directories:
+  # dataSubDir <- c("Tables", "Rdata")
+  # 
+  # # Results sub-directories:
+  # resSubDir <- c("Plots", "Tables", "Rdata")
+  # 
+  # # Create file structure:
+  # for (subdir in projSubDirs) {
+  #   subDirPath <- sprintf("%s/%s/", projDir, subdir)
+  #   dir.create(sprintf("%s/%s/", projDir, subdir), showWarnings = FALSE)
+  #   if (subdir == "03_Data") {
+  #     for (subsubdir in dataSubDir) {
+  #       dir.create(sprintf("%s%s/", subDirPath, subsubdir), showWarnings = FALSE)
+  #     }
+  #   }
+  #   if (subdir == "04_Results") {
+  #     for (subsubdir in resSubDir) {
+  #       dir.create(sprintf("%s%s/", subDirPath, subsubdir), showWarnings = FALSE)
+  #     }
+  #   }
+  # }
   
   # Create R studio project file:
   if (RstProj) {
