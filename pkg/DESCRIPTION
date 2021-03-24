@@ -1,0 +1,13 @@
+Package: CreateRproj
+Type: Package
+Title: Functions to create R projects, code files, and R packages.
+Version: 1.0.0
+Date: 2021-03-23
+Author: Fernando Colchero [aut, cre]
+Maintainer: Fernando Colchero <colchero@imada.sdu.dk>
+Depends: R (>= 2.10)
+Imports: 
+Description: Functions to create empty R projects, code files, and R packages.
+License: GPL
+LazyLoad: yes
+LazyData: yes

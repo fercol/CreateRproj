@@ -1,0 +1,3 @@
+#Exports:
+export("CreateNamespace", "CreatePkgDescrip", "CreateRcode", "CreateRcodeSec", "CreateRdFiles", "CreateRpackage", "CreateRproj")
+
