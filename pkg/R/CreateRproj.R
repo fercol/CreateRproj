@@ -52,7 +52,7 @@ CreateRproj <- function(projName, mainDir, git = FALSE, RstProj = FALSE) {
   # Create R studio project file:
   if (RstProj) {
     RprojCont <- "Version: 1.0\nRestoreWorkspace: Default\nSaveWorkspace: Default\nAlwaysSaveHistory: Default\n\nEnableCodeIndexing: Yes\nUseSpacesForTab: Yes\nNumSpacesForTab: 2\nEncoding: UTF-8\n\nRnwWeave: knitr\nLaTeX: pdfLaTeX"
-    cat(RprojCont, file = sprintf("%s%s.Rproj", pkgDir, pkgName))
+    cat(RprojCont, file = sprintf("%s%s.Rproj",projDir, pkgName))
   }
   
   # Setup git 
