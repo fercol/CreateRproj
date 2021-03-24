@@ -51,7 +51,8 @@ CreateRproj <- function(projName, mainDir, git = FALSE, RstProj = FALSE) {
   
   # Create R studio project file:
   if (RstProj) {
-    file.create(sprintf("%s%s.Rproj", mainDir, projName))
+    RprojCont <- "Version: 1.0\nRestoreWorkspace: Default\nSaveWorkspace: Default\nAlwaysSaveHistory: Default\n\nEnableCodeIndexing: Yes\nUseSpacesForTab: Yes\nNumSpacesForTab: 2\nEncoding: UTF-8\n\nRnwWeave: knitr\nLaTeX: pdfLaTeX"
+    cat(RprojCont, file = sprintf("%s%s.Rproj", pkgDir, pkgName))
   }
   
   # Setup git 
@@ -188,7 +189,8 @@ CreateRpackage <- function(pkgName, mainDir, git = FALSE, RstProj = FALSE) {
   
   # Create R studio project file:
   if (RstProj) {
-    file.create(sprintf("%s%s.Rproj", pkgDir, pkgName))
+    RprojCont <- "Version: 1.0\nRestoreWorkspace: Default\nSaveWorkspace: Default\nAlwaysSaveHistory: Default\n\nEnableCodeIndexing: Yes\nUseSpacesForTab: Yes\nNumSpacesForTab: 2\nEncoding: UTF-8\n\nRnwWeave: knitr\nLaTeX: pdfLaTeX"
+    cat(RprojCont, file = sprintf("%s%s.Rproj", pkgDir, pkgName))
   }
   
   # Setup git 
