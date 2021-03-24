@@ -9,12 +9,16 @@
  FILL UP
 }
 
-\usage{CreateRproj(projName, mainDir)}
+\usage{CreateRproj(projName, mainDir, git = FALSE, RstProj = FALSE)}
 
 \arguments{
 	\item{projName }{FILL UP}
 
 	\item{mainDir }{FILL UP}
+
+	\item{git }{FILL UP}
+
+	\item{RstProj }{FILL UP}
 
 }
 

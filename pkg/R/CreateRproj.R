@@ -291,7 +291,7 @@ CreateRdFiles <- function(pkgName, mainDir, codeFile) {
   cat(sprintf("\\alias{%s}\n\n", pkgName), file = rdPath, append = TRUE)
   
   # Doctype:
-  cat("\\docType{Package}\n\n", file = rdPath, append = TRUE)
+  cat("\\docType{package}\n\n", file = rdPath, append = TRUE)
   
   # Title and description:
   cat("\\title{\n FILL UP\n}\n\n\\description{\n FILL UP\n}\n\n", 

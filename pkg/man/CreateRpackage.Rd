@@ -9,12 +9,16 @@
  FILL UP
 }
 
-\usage{CreateRpackage(pkgName, mainDir)}
+\usage{CreateRpackage(pkgName, mainDir, git = FALSE, RstProj = FALSE)}
 
 \arguments{
 	\item{pkgName }{FILL UP}
 
 	\item{mainDir }{FILL UP}
+
+	\item{git }{FILL UP}
+
+	\item{RstProj }{FILL UP}
 
 }
 

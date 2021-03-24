@@ -2,7 +2,7 @@
 \alias{CreateRproj-package}
 \alias{CreateRproj}
 
-\docType{Package}
+\docType{package}
 
 \title{
  FILL UP
