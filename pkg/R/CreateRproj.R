@@ -139,7 +139,7 @@ CreateRcode <- function(codeFile, projName, mainDir, sections = NULL) {
 CreateRcodeSec <- function(codeFile, projName, mainDir, sections) {
   
   # Code file name:
-  codeFilePath <- sprintf("%s%s/02_Code/%s.R", mainDir, projName, codeFile)
+  codeFilePath <- sprintf("%s%s/02Code/%s.R", mainDir, projName, codeFile)
   
   # Add sections to code:
   for (sec in sections) {
