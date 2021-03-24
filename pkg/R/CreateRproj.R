@@ -268,13 +268,12 @@ CreateNamespace <- function(pkgName, mainDir, codeFile, import = NULL) {
   # Find S3 methods:
   idS3 <- grep("[[:alnum:]]{+}[[:punct:]]{1}[[:alnum:]]{+}", funNames)
   if (length(idS3) > 0) {
-    cat("S3 methods:\n", file = nmspPath, append = TRUE)
+    cat("#S3 methods:\n", file = nmspPath, append = TRUE)
     for (ii in idS3) {
       cat(sprintf("S3method(\"%s\")\n", funNames[ii]), file = nmspPath, 
           append = TRUE)
     }
   }
-  
 }
 
 # Create .Rd files:
