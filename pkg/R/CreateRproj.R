@@ -32,6 +32,8 @@ CreateRproj <- function(projName, mainDir, git = FALSE, RstProj = FALSE) {
   # Create directory if the project doesn't exist:
   if (!dir.exists(projDir)) {
     dir.create(projDir)
+  } else {
+    stop(sprintf("Project %s already exists.", projName), call. = FALSE)
   }
   
   # Create files:
