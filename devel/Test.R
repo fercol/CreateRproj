@@ -34,10 +34,11 @@ CreateRcodeSec(codeFile = codeFile, projName = projName, mainDir = mainDir,
 # ==== CREATE EMPTY R-PACKAGE: ====
 # ================================= #
 # Package name:
-pkgName <- "TestPackage" 
+pkgName <- "parDemo" 
 
 # Create package:
-CreateRpackage(pkgName = pkgName, mainDir = mainDir)
+CreateRpackage(pkgName = pkgName, mainDir = mainDir, git = TRUE, 
+               RstProj = TRUE)
 
 # Create package description:
 CreatePkgDescrip(pkgName = pkgName, mainDir = mainDir)
