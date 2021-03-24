@@ -150,7 +150,7 @@ CreateRcodeSec <- function(codeFile, projName, mainDir, sections) {
 # ==== FUNCTIONS FOR R PACKAGE: ====
 # ================================== #
 # Function to create a package:
-CreateRpackage <- function(pkgName, mainDir) {
+CreateRpackage <- function(pkgName, mainDir, git = FALSE, RstProj = FALSE) {
   # Project directory:
   pkgDir <- sprintf("%s%s/", mainDir, pkgName)
   
@@ -180,7 +180,14 @@ CreateRpackage <- function(pkgName, mainDir) {
   }
   
   # Create R studio project file:
-  file.create(sprintf("%s%s.Rproj", pkgDir, pkgName))
+  if (RstProj) {
+    file.create(sprintf("%s%s.Rproj", pkgDir, pkgName))
+  }
+  
+  # Setup git 
+  if (git) {
+    system(sprintf("cd %s\ngit init", pkgDir))
+  }
 }
 
 # Create description file:
