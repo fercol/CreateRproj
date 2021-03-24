@@ -46,31 +46,6 @@ CreateRproj <- function(projName, mainDir, git = FALSE, RstProj = FALSE) {
     }
   }
   
-  # # Sub-directories for project:
-  # projSubDirs <- c("01_Docs", "02_Code", "03_Data", "04_Results")
-  # 
-  # # Data sub-directories:
-  # dataSubDir <- c("Tables", "Rdata")
-  # 
-  # # Results sub-directories:
-  # resSubDir <- c("Plots", "Tables", "Rdata")
-  # 
-  # # Create file structure:
-  # for (subdir in projSubDirs) {
-  #   subDirPath <- sprintf("%s/%s/", projDir, subdir)
-  #   dir.create(sprintf("%s/%s/", projDir, subdir), showWarnings = FALSE)
-  #   if (subdir == "03_Data") {
-  #     for (subsubdir in dataSubDir) {
-  #       dir.create(sprintf("%s%s/", subDirPath, subsubdir), showWarnings = FALSE)
-  #     }
-  #   }
-  #   if (subdir == "04_Results") {
-  #     for (subsubdir in resSubDir) {
-  #       dir.create(sprintf("%s%s/", subDirPath, subsubdir), showWarnings = FALSE)
-  #     }
-  #   }
-  # }
-  
   # Create R studio project file:
   if (RstProj) {
     RprojCont <- "Version: 1.0\nRestoreWorkspace: Default\nSaveWorkspace: Default\nAlwaysSaveHistory: Default\n\nEnableCodeIndexing: Yes\nUseSpacesForTab: Yes\nNumSpacesForTab: 2\nEncoding: UTF-8\n\nRnwWeave: knitr\nLaTeX: pdfLaTeX"
@@ -86,7 +61,7 @@ CreateRproj <- function(projName, mainDir, git = FALSE, RstProj = FALSE) {
 # Function to create a template for R code:
 CreateRcode <- function(codeFile, projName, mainDir, sections = NULL) {
   # Code file name:
-  codeFilePath <- sprintf("%s%s/02_Code/%s.R", mainDir, projName, codeFile)
+  codeFilePath <- sprintf("%s%s/02code/%s.R", mainDir, projName, codeFile)
   
   # ----------------------- #
   # ---- Header setup: ----
@@ -184,8 +159,12 @@ CreateRpackage <- function(pkgName, mainDir, git = FALSE, RstProj = FALSE) {
   # Project directory:
   pkgDir <- sprintf("%s%s/", mainDir, pkgName)
   
-  # Create package:
-  dir.create(pkgDir)
+  # Create directory if the project doesn't exist:
+  if (!dir.exists(pkgDir)) {
+    dir.create(pkgDir)
+  } else {
+    stop(sprintf("Package %s already exists.", pkgName), call. = FALSE)
+  }
   
   # Directory levels:
   dirLevs <- list()
