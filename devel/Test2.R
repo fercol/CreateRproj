@@ -4,7 +4,7 @@ library(CreateRproj)
 mainDir <- "~/FERNANDO/PROJECTS/4.PACKAGES/"
 
 # package name:
-pkgName <- "paramDemo"
+pkgName <- "BaFTA"
 
 # Create package:
 CreateRpackage(pkgName = pkgName, mainDir = mainDir, git = TRUE, 
