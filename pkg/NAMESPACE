@@ -1,3 +1,3 @@
 #Exports:
-export("CreateNamespace", "CreatePkgDescrip", "CreateRcode", "CreateRcodeSec", "CreateRdFiles", "CreateRpackage", "CreateRproj")
+export("CreateNamespace", "CreatePkgDescrip", "CreateRscript", "CreateRscriptSec", "CreateRdFiles", "CreateRpackage", "CreateRproj")
 

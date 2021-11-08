@@ -61,10 +61,7 @@ CreateRproj <- function(projName, mainDir, git = FALSE, RstProj = FALSE) {
 }
 
 # Function to create a template for R code:
-CreateRcode <- function(codeFile, projName, mainDir, sections = NULL) {
-  # Code file name:
-  codeFilePath <- sprintf("%s%s/02code/%s.R", mainDir, projName, codeFile)
-  
+CreateRscript <- function(file, sections = NULL) {
   # ----------------------- #
   # ---- Header setup: ----
   # ----------------------- #
@@ -85,10 +82,10 @@ CreateRcode <- function(codeFile, projName, mainDir, sections = NULL) {
   eqEnd <- ceiling((nEq - nchHeads[1])/2)
   cat(sprintf("# %s%s%s #\n", paste(rep("=", eqStart), collapse = ""),
               metHeads[1], paste(rep("=", eqEnd), collapse = "")),
-      file = codeFilePath)
+      file = file)
   
   for (hlabs in headLabs) {
-    cat(sprintf("# %s\n", hlabs), file = codeFilePath, append = TRUE)  
+    cat(sprintf("# %s\n", hlabs), file = file, append = TRUE)  
   }
   
   # Header end:
@@ -96,7 +93,7 @@ CreateRcode <- function(codeFile, projName, mainDir, sections = NULL) {
   eqEnd <- ceiling((nEq - nchHeads[2])/2)
   cat(sprintf("# %s%s%s #\n", paste(rep("=", eqStart), collapse = ""),
               metHeads[2], paste(rep("=", eqEnd), collapse = "")),
-      file = codeFilePath, append = TRUE)
+      file = file, append = TRUE)
   
   # ------------------------- #
   # ---- setup sections: ----
@@ -106,18 +103,17 @@ CreateRcode <- function(codeFile, projName, mainDir, sections = NULL) {
                 "Sourced files")
   sec <- " ==== SETUP: ==== "
   cat(sprintf("# %s #\n", paste(rep("=", nchar(sec) - 2), collapse = "")),
-      file = codeFilePath, append = TRUE)
-  cat(sprintf("#%s\n", sec), file = codeFilePath, append = TRUE)
+      file = file, append = TRUE)
+  cat(sprintf("#%s\n", sec), file = file, append = TRUE)
   cat(sprintf("# %s #\n", paste(rep("=", nchar(sec) - 2), collapse = "")),
-      file = codeFilePath, append = TRUE)
+      file = file, append = TRUE)
   for (setsub in setupSub) {
-    cat(sprintf("# %s:\n\n", setsub), file = codeFilePath, append = TRUE)
+    cat(sprintf("# %s:\n\n", setsub), file = file, append = TRUE)
   }
   
   # Additional sections:
   if (!is.null(sections)) {
-    CreateRcodeSec(codeFile = codeFile, mainDir = mainDir, projName = projName, 
-                   sections = sections)
+    CreateRscriptSec(file = file, sections = sections)
   }
   
   # ----------------- #
@@ -132,25 +128,20 @@ CreateRcode <- function(codeFile, projName, mainDir, sections = NULL) {
   eqEnd <- ceiling((nEq - nfoot)/2)
   cat(sprintf("# %s%s%s #\n", paste(rep("=", eqStart), collapse = ""),
               foot, paste(rep("=", eqEnd), collapse = "")),
-      file = codeFilePath, append = TRUE)
+      file = file, append = TRUE)
 }
 
 # Function to add more sections:
-CreateRcodeSec <- function(codeFile, projName, mainDir, sections) {
-  
-  # Code file name:
-  codeFilePath <- sprintf("%s%s/02Code/%s.R", mainDir, projName, codeFile)
-  
+CreateRscriptSec <- function(file, sections) {
   # Add sections to code:
   for (sec in sections) {
     sec <- sprintf(" ==== %s: ====", toupper(sec))
     cat(sprintf("# %s #\n", paste(rep("=", nchar(sec) - 2), collapse = "")),
-        file = codeFilePath, append = TRUE)
-    cat(sprintf("#%s\n", sec), file = codeFilePath, append = TRUE)
+        file = file, append = TRUE)
+    cat(sprintf("#%s\n", sec), file = file, append = TRUE)
     cat(sprintf("# %s #\n\n", paste(rep("=", nchar(sec) - 2), collapse = "")),
-        file = codeFilePath, append = TRUE)
+        file = file, append = TRUE)
   }
-  
 }
 
 # ================================== #
@@ -203,53 +194,69 @@ CreateRpackage <- function(pkgName, mainDir, git = FALSE, RstProj = FALSE) {
 }
 
 # Create description file:
-CreatePkgDescrip <- function(pkgName, mainDir) {
+CreatePkgDescrip <- function(pkgName, mainDir, title = NULL, 
+                             version = NULL, authors = NULL,
+                             maintainer = NULL, license = NULL) {
   # Project directory:
   pkgDir <- sprintf("%s%s/", mainDir, pkgName)
   
   # sections:
   sections <- c("Package", "Type", "Title", "Version",
                 "Date", "Author", "Maintainer", "Depends",
-                "Imports", "Description", "License", "LazyData")
+                "Imports", "Description", "License", "LazyLoad", "LazyData")
+  
+  # Section content:
+  secCont <- c(pkgName, "Package", "", "", as.character(Sys.Date()),
+               "", "", "R (>= 2.10)", "", "", "GPL", "yes", "yes")
+  
+  # Title:
+  if (!is.null(title)) {
+    secCont[which(sections == "Title")] <- title
+  }
+  
+  # Title:
+  if (!is.null(version)) {
+    secCont[which(sections == "Version")] <- version
+  }
+  
+  # Author names:
+  if (!is.null(authors)) {
+    secCont[which(sections == "Author")] <- paste(authors, collapse = ", ")
+  }
+  
+  # Maintainer:
+  if (!is.null(maintainer)) {
+    secCont[which(sections == "Maintainer")] <- paste(maintainer, 
+                                                      collapse = ", ")
+  }
+  
+  # License:
+  if (!is.null(license)) {
+    secCont[which(sections == "License")] <- license
+  }
   
   # File path:
   descPath <- sprintf("%spkg/DESCRIPTION", pkgDir)
   
   for (ii in 1:length(sections)) {
-    if (ii == 1) {
-      cat(sprintf("%s: %s\n", sections[ii], pkgName),
-          file = descPath)
-    } else if (ii == 2) {
-      cat(sprintf("%s: Package\n", sections[ii]),
-          file = descPath, append = TRUE)
-    } else if (sections[ii] == "Date") {
-      cat(sprintf("%s: %s\n", sections[ii], as.character(Sys.Date())),
-          file = descPath, append = TRUE)
-    } else if (sections[ii] == "License") {
-      cat(sprintf("%s: %s\n", sections[ii], "GPL"),
-          file = descPath, append = TRUE)
-    } else if (grepl("Lazy", sections[ii])) {
-      cat(sprintf("%s: %s\n", sections[ii], "yes"),
-          file = descPath, append = TRUE)
-    } else {
-      cat(sprintf("%s: \n", sections[ii]),
-          file = descPath, append = TRUE)
-    }
+    if (ii == 1) append <- FALSE else append <- TRUE
+    cat(sprintf("%s: %s\n", sections[ii], secCont[ii]),
+        file = descPath, append = append)
   }
 }
 
 # Create namespace file:
-CreateNamespace <- function(pkgName, mainDir, codeFile, import = NULL) {
+CreateNamespace <- function(pkgName, mainDir, scriptFile, import = NULL) {
   # Project directory:
   pkgDir <- sprintf("%s%s/", mainDir, pkgName)
   
   # code file path:
-  codePath <- sprintf("%spkg/R/%s.R", pkgDir, codeFile)
+  codePath <- sprintf("%spkg/R/%s.R", pkgDir, scriptFile)
   
   # Namespace path:
   nmspPath <- sprintf("%spkg/NAMESPACE", pkgDir)
   
-  # Find functions in codeFile:
+  # Find functions in scriptFile:
   env <- attach(NULL, name = "tempenv")
   sys.source(codePath, envir = env)
   funNames <- ls(envir = env)
@@ -282,7 +289,8 @@ CreateNamespace <- function(pkgName, mainDir, codeFile, import = NULL) {
 }
 
 # Create .Rd files:
-CreateRdFiles <- function(pkgName, mainDir, codeFile) {
+CreateRdFiles <- function(pkgName, mainDir, scriptFile, authorNames = NULL,
+                          authorEmails = NULL, license = NULL) {
   # Project directory:
   pkgDir <- sprintf("%s%s/", mainDir, pkgName)
   
@@ -311,16 +319,27 @@ CreateRdFiles <- function(pkgName, mainDir, codeFile) {
   cat("\tVersion: \\tab 1.0.0\\cr\n", file = rdPath, append = TRUE)
   cat(sprintf("\tDate: \\tab %s\\cr\n", as.character(Sys.Date())), file = rdPath, 
       append = TRUE)
-  cat("\tLicense: \\tab GNU General Public Licence\\cr\n", file = rdPath, 
-      append = TRUE)
+  if (is.null(license)) {
+    cat("\tLicense: \\tab GNU General Public Licence\\cr\n", 
+        file = rdPath, append = TRUE)
+  } else {
+    cat(sprintf("\tLicense: \\tab %s\\cr\n", license), file = rdPath, 
+        append = TRUE)
+  }
   cat("\tLazyLoad: \\tab yes\\cr\n", file = rdPath, append = TRUE)
   cat("}\n\n", file = rdPath, append = TRUE)
   cat("FILL UP DETAILS \n}\n\n", file = rdPath, append = TRUE)
   
   # Author:
-  cat("\\author{AUTHOR(S) NAME(S) \\email{authoremail}}\n\n", 
-      file = rdPath, append = TRUE)
-  
+  if (is.null(authorNames)) {
+    cat("\\author{AUTHOR(S) NAME(S) \\email{authoremail}}\n\n", 
+        file = rdPath, append = TRUE)
+  } else {
+    cat(sprintf("\\author{%s}\n\n", paste(sprintf("%s \\email{%s}", 
+                                              authorNames, authorEmails), 
+                                      collapse = ", ")), 
+        file = rdPath, append = TRUE)
+  }
   # References:
   cat("\\references{\nFILL UP\n}", file = rdPath, append = TRUE)
   
@@ -329,23 +348,60 @@ CreateRdFiles <- function(pkgName, mainDir, codeFile) {
   # ---- Create specific .Rd file: ----
   # ----------------------------------- #
   # code file path:
-  codePath <- sprintf("%spkg/R/%s.R", pkgDir, codeFile)
+  codePath <- sprintf("%spkg/R/%s.R", pkgDir, scriptFile)
   
-  # Find functions in codeFile:
+  # Find functions in scriptFile:
   env <- attach(NULL, name = "tempenv")
   sys.source(codePath, envir = env)
   funNames <- sort(ls(envir = env))
   arlist <- list()
   for (fn in funNames) {
-    ar1 <- deparse(get(fn))[1]
-    ar <- gsub(pattern = "function[[:space:]]{1}[[:punct:]]", 
-               replacement = "", x = ar1)
-    ar1 <- gsub(pattern = "function[[:space:]]{1}", replacement = "", x = ar1)
-    ar1 <- gsub(pattern = ") ", replacement = ")", x = ar1)
-    ar <- gsub(pattern = ") ", replacement = "", x = ar)
-    ar <- gsub(pattern = "[[:space:]]{1}[[:punct:]]{1}[[:space:]]{1}[[:alpha:]]{2,}", replacement = "", x = ar)
-    ar2 <- strsplit(ar, ", ")[[1]]
-    arlist[[fn]] <- list(call = ar1, args = ar2)
+    # ar1 <- deparse(get(fn))[1]
+    # ar <- gsub(pattern = "function[[:space:]]{1}[[:punct:]]", 
+    #            replacement = "", x = ar1)
+    # ar1 <- gsub(pattern = "function[[:space:]]{1}", replacement = "", x = ar1)
+    # ar1 <- gsub(pattern = ") ", replacement = ")", x = ar1)
+    # ar <- gsub(pattern = ") ", replacement = "", x = ar)
+    # ar <- gsub(pattern = "[[:space:]]{1}[[:punct:]]{1}[[:space:]]{1}[[:alpha:]]{2,}", replacement = "", x = ar)
+    # ar2 <- strsplit(ar, ", ")[[1]]
+    # arlist[[fn]] <- list(call = ar1, args = ar2)
+    fnchar <- deparse(get(fn))
+    notp <- FALSE
+    ni <- 0
+    while (!notp) {
+      ni <- ni + 1
+      notp <- grepl(")", fnchar[ni])
+    }
+    
+    arcall <- c()
+    arargs <- c()
+    for (ii in 1:ni) {
+      ar1 <- fnchar[ii]
+      if (ii == 1) {
+        ar <- gsub(pattern = "function[[:space:]]{1}[[:punct:]]", 
+                   replacement = "", x = ar1)
+        ar1 <- gsub(pattern = "function[[:space:]]{1}", replacement = "", 
+                    x = ar1)
+      } else {
+        ar <- gsub(pattern = "[[:space:]]{2,}", replacement = "", x = ar1)
+        ar1 <- gsub(pattern = "[[:space:]]{2,}", replacement = "", x = ar1)
+      }
+      if (ii == ni) {
+        ar1 <- gsub(pattern = ") ", replacement = ")", x = ar1)
+        ar <- gsub(pattern = ") ", replacement = "", x = ar)
+      }
+      ar <- gsub(pattern = "[[:space:]]{1}[[:punct:]]{1}[[:space:]]{1}[[:alpha:]]{2,}", replacement = "", x = ar)
+      arcall <- paste(arcall, ar1, collapse = ", ")
+      arargs <- paste(arargs, ar, collapse = ", ")
+    }
+    
+    arargs <- strsplit(arargs, ", ")[[1]]
+    for (jj in 1:length(arargs)) {
+      if (grepl(" = ", arargs[jj])) {
+        arargs[jj] <- strsplit(arargs[jj], " = ")[[1]][1] 
+      }
+    }
+    arlist[[fn]] <- list(call = arcall, args = arargs)
   }
   detach("tempenv")
   
@@ -421,8 +477,16 @@ CreateRdFiles <- function(pkgName, mainDir, codeFile) {
           append = TRUE)
       
       # Author:
-      cat("\\author{AUTHOR(S) NAME(S) \\email{authoremail}}\n\n", 
-          file = rdPath, append = TRUE)
+      if (is.null(authorNames)) {
+        cat("\\author{AUTHOR(S) NAME(S) \\email{authoremail}}\n\n", 
+            file = rdPath, append = TRUE)
+      } else {
+        cat(sprintf("\\author{%s}\n\n", paste(sprintf("%s \\email{%s}", 
+                                                  authorNames, 
+                                                  authorEmails), 
+                                          collapse = ", ")), 
+            file = rdPath, append = TRUE)
+      }
       
       # See also:
       cat("\\seealso{FILL UP}\n\n", file = rdPath, append = TRUE)
