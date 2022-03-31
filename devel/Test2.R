@@ -7,7 +7,7 @@ library(CreateRproj)
 mainDir <- "~/FERNANDO/PROJECTS/4.PACKAGES/"
 
 # package name:
-pkgName <- "CreateRproj"
+pkgName <- "testudinesSenescenceRcode"
 
 # Create package:
 CreateRpackage(pkgName = pkgName, mainDir = mainDir, git = TRUE, 
@@ -19,7 +19,7 @@ CreatePkgDescrip(pkgName = pkgName, mainDir = mainDir)
 # Script:
 
 # Create project for gorilla disease project:
-projName <- "popDisease"
+projName <- "testudinesSenescenceRcode"
 
 # ================== #
 # ==== PROJECT: ====
