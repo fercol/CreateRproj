@@ -251,14 +251,14 @@ CreateNamespace <- function(pkgName, mainDir, scriptFile, import = NULL) {
   pkgDir <- sprintf("%s%s/", mainDir, pkgName)
   
   # code file path:
-  codePath <- sprintf("%spkg/R/%s.R", pkgDir, scriptFile)
+  scriptPath <- sprintf("%spkg/R/%s.R", pkgDir, scriptFile)
   
   # Namespace path:
   nmspPath <- sprintf("%spkg/NAMESPACE", pkgDir)
   
   # Find functions in scriptFile:
   env <- attach(NULL, name = "tempenv")
-  sys.source(codePath, envir = env)
+  sys.source(scriptPath, envir = env)
   funNames <- ls(envir = env)
   detach("tempenv")
   
@@ -280,10 +280,11 @@ CreateNamespace <- function(pkgName, mainDir, scriptFile, import = NULL) {
   # Find S3 methods:
   idS3 <- grep("[[:alnum:]]{+}[[:punct:]]{1}[[:alnum:]]{+}", funNames)
   if (length(idS3) > 0) {
-    cat("#S3 methods:\n", file = nmspPath, append = TRUE)
+    cat("\n#S3 methods:\n", file = nmspPath, append = TRUE)
     for (ii in idS3) {
-      cat(sprintf("S3method(\"%s\")\n", funNames[ii]), file = nmspPath, 
-          append = TRUE)
+      tempFun <- strsplit(funNames[ii], ".")[[1]]
+      cat(sprintf("S3method(\"%s\", \"%s\")\n", tempFun[1], tempFun[2]), 
+          file = nmspPath, append = TRUE)
     }
   }
 }
@@ -348,11 +349,11 @@ CreateRdFiles <- function(pkgName, mainDir, scriptFile, authorNames = NULL,
   # ---- Create specific .Rd file: ----
   # ----------------------------------- #
   # code file path:
-  codePath <- sprintf("%spkg/R/%s.R", pkgDir, scriptFile)
+  scriptPath <- sprintf("%spkg/R/%s.R", pkgDir, scriptFile)
   
   # Find functions in scriptFile:
   env <- attach(NULL, name = "tempenv")
-  sys.source(codePath, envir = env)
+  sys.source(scriptPath, envir = env)
   funNames <- sort(ls(envir = env))
   arlist <- list()
   for (fn in funNames) {
