@@ -282,7 +282,7 @@ CreateNamespace <- function(pkgName, mainDir, scriptFile, import = NULL) {
   if (length(idS3) > 0) {
     cat("\n#S3 methods:\n", file = nmspPath, append = TRUE)
     for (ii in idS3) {
-      tempFun <- strsplit(funNames[ii], ".")[[1]]
+      tempFun <- strsplit(funNames[ii], "[[:punct:]]")[[1]]
       cat(sprintf("S3method(\"%s\", \"%s\")\n", tempFun[1], tempFun[2]), 
           file = nmspPath, append = TRUE)
     }
