@@ -136,10 +136,10 @@ CreateRscriptSec <- function(file, sections) {
   # Add sections to code:
   for (sec in sections) {
     sec <- sprintf(" ==== %s: ====", toupper(sec))
-    cat(sprintf("# %s #\n", paste(rep("=", nchar(sec) - 2), collapse = "")),
+    cat(sprintf("# %s #\n", paste(rep("=", nchar(sec) - 1), collapse = "")),
         file = file, append = TRUE)
     cat(sprintf("#%s\n", sec), file = file, append = TRUE)
-    cat(sprintf("# %s #\n\n", paste(rep("=", nchar(sec) - 2), collapse = "")),
+    cat(sprintf("# %s #\n\n", paste(rep("=", nchar(sec) - 1), collapse = "")),
         file = file, append = TRUE)
   }
 }
