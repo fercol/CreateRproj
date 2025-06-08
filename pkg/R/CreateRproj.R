@@ -337,8 +337,8 @@ CreateRdFiles <- function(pkgName, mainDir, scriptFile, authorNames = NULL,
         file = rdPath, append = TRUE)
   } else {
     cat(sprintf("\\author{%s}\n\n", paste(sprintf("%s \\email{%s}", 
-                                              authorNames, authorEmails), 
-                                      collapse = ", ")), 
+                                                  authorNames, authorEmails), 
+                                          collapse = ", ")), 
         file = rdPath, append = TRUE)
   }
   # References:
@@ -351,154 +351,223 @@ CreateRdFiles <- function(pkgName, mainDir, scriptFile, authorNames = NULL,
   # code file path:
   scriptPath <- sprintf("%spkg/R/%s.R", pkgDir, scriptFile)
   
-  # Find functions in scriptFile:
   env <- attach(NULL, name = "tempenv")
   sys.source(scriptPath, envir = env)
   funNames <- sort(ls(envir = env))
-  arlist <- list()
-  for (fn in funNames) {
-    # ar1 <- deparse(get(fn))[1]
-    # ar <- gsub(pattern = "function[[:space:]]{1}[[:punct:]]", 
-    #            replacement = "", x = ar1)
-    # ar1 <- gsub(pattern = "function[[:space:]]{1}", replacement = "", x = ar1)
-    # ar1 <- gsub(pattern = ") ", replacement = ")", x = ar1)
-    # ar <- gsub(pattern = ") ", replacement = "", x = ar)
-    # ar <- gsub(pattern = "[[:space:]]{1}[[:punct:]]{1}[[:space:]]{1}[[:alpha:]]{2,}", replacement = "", x = ar)
-    # ar2 <- strsplit(ar, ", ")[[1]]
-    # arlist[[fn]] <- list(call = ar1, args = ar2)
-    fnchar <- deparse(get(fn))
-    notp <- FALSE
-    ni <- 0
-    while (!notp) {
-      ni <- ni + 1
-      notp <- grepl(")", fnchar[ni])
-    }
-    
-    arcall <- c()
-    arargs <- c()
-    for (ii in 1:ni) {
-      ar1 <- fnchar[ii]
-      if (ii == 1) {
-        ar <- gsub(pattern = "function[[:space:]]{1}[[:punct:]]", 
-                   replacement = "", x = ar1)
-        ar1 <- gsub(pattern = "function[[:space:]]{1}", replacement = "", 
-                    x = ar1)
-      } else {
-        ar <- gsub(pattern = "[[:space:]]{2,}", replacement = "", x = ar1)
-        ar1 <- gsub(pattern = "[[:space:]]{2,}", replacement = "", x = ar1)
-      }
-      if (ii == ni) {
-        ar1 <- gsub(pattern = ") ", replacement = ")", x = ar1)
-        ar <- gsub(pattern = ") ", replacement = "", x = ar)
-      }
-      ar <- gsub(pattern = "[[:space:]]{1}[[:punct:]]{1}[[:space:]]{1}[[:alpha:]]{2,}", replacement = "", x = ar)
-      arcall <- paste(arcall, ar1, collapse = ", ")
-      arargs <- paste(arargs, ar, collapse = ", ")
-    }
-    
-    arargs <- strsplit(arargs, ", ")[[1]]
-    for (jj in 1:length(arargs)) {
-      if (grepl(" = ", arargs[jj])) {
-        arargs[jj] <- strsplit(arargs[jj], " = ")[[1]][1] 
-      }
-    }
-    arlist[[fn]] <- list(call = arcall, args = arargs)
-  }
-  detach("tempenv")
-  
-  # Number of functions:
   nfuns <- length(funNames)
   
-  # Create .Rd files:
-  skipfun <- c()
-  for (fn in funNames) {
-    if (!fn %in% skipfun) {
-      idfun <- which(funNames == fn)
-      alfuns <- NA
-      # Find S3 methods for original function (aliases):
-      if (idfun < nfuns) {
-        idrem <- (idfun + 1):nfuns
-        idS3funs <- grep(fn, funNames[idrem])
-        if (length(idS3funs) > 0) {
-          idS3 <- grep("[[:alnum:]]{+}[[:punct:]]{1}[[:alnum:]]{+}", 
-                       funNames[idS3funs])
-          alfuns <- funNames[idrem[idS3]]
-          skipfun <- c(skipfun, alfuns)
-        } else {
-          alfuns <- NA
-        }
-      } 
-      rdPath <- sprintf("%spkg/man/%s.Rd", pkgDir, fn)
-      
-      # Name and aliases:
-      cat(sprintf("\\name{%s}\n", fn), file = rdPath)
-      cat(sprintf("\\alias{%s}\n", fn), file = rdPath, append = TRUE)
-      if (!is.na(alfuns[1])) {
-        for (alfn in alfuns) {
-          cat(sprintf("\\alias{%s}\n", alfn), file = rdPath, append = TRUE)
-        }
-      }
-      # Title and description:
-      cat("\n\\title{\n FILL UP\n}\n\n\\description{\n FILL UP\n}\n\n", 
-          file = rdPath, append = TRUE)
-      
-      # Usage:
-      alist <- arlist[[fn]]
-      def <- FALSE
-      if (!is.na(alfuns[1])) {
-        idefault <- grep("default", alfuns)
-        if (length(idefault) > 0) {
-          alist <- arlist[[alfuns[idefault]]]
-          def <- TRUE
-        } 
-      }
-      
-      if (def) {
-        usage <- sprintf("\\usage{\\method{%s}{default}%s}\n\n", fn, alist$call)
+  # Create function list:
+  funList <- list()
+  
+  # index for Rd file:
+  idRdCount <- 0
+  
+  # Find Default methods:
+  idDefault <- grep("default", funNames)
+  nDefault <- length(idDefault)
+  idSkip <- c()
+  if (nDefault > 0) {
+    for (idd in idDefault) {
+      defFun <- gsub(".default", "", funNames[idd])
+      idDefFun <- which(grepl(defFun, funNames) & !grepl(sprintf(".%s", defFun), 
+                                                         funNames))
+      idDefFun <- idDefFun[which(idDefFun != idd)]
+      funArgs <- .ExtractArgs(funNames[idd])
+      idsDef <- c(idDefFun, idd)
+      idRdCount <- idRdCount + 1
+      temp <- data.frame(name = defFun, method = "default", alias = funNames[idd],
+                         idRd = idRdCount, stringsAsFactors = FALSE)
+      if (idRdCount - 1 == 0) {
+        funTab <- temp
       } else {
-        usage <- sprintf("\\usage{%s%s}\n\n", fn, alist$call)
+        funTab <- rbind(funTab, temp)
       }
       
-      cat(usage, file = rdPath, append = TRUE)
-      
-      # Arguments:
-      cat("\\arguments{\n", file = rdPath, append = TRUE)
-      for (ar in alist$args) {
-        cat(sprintf("\t\\item{%s }{FILL UP}\n\n", ar), file = rdPath, 
-            append = TRUE)
-      }
-      
-      cat("}\n\n", file = rdPath, append = TRUE)
-      
-      # Details:
-      cat("\\details{\nFILL UP \n}\n\n", file = rdPath, append = TRUE)
-      
-      # Value:
-      cat("\\value{\n\t\\item{fill up }{FILL UP}\n}\n\n", file = rdPath, 
-          append = TRUE)
-      
-      # Author:
-      if (is.null(authorNames)) {
-        cat("\\author{AUTHOR(S) NAME(S) \\email{authoremail}}\n\n", 
-            file = rdPath, append = TRUE)
-      } else {
-        cat(sprintf("\\author{%s}\n\n", paste(sprintf("%s \\email{%s}", 
-                                                  authorNames, 
-                                                  authorEmails), 
-                                          collapse = ", ")), 
-            file = rdPath, append = TRUE)
-      }
-      
-      # See also:
-      cat("\\seealso{FILL UP}\n\n", file = rdPath, append = TRUE)
-      
-      # Examples:
-      cat("\\examples{FILL UP}\n\n", file = rdPath, append = TRUE)
-      
-      # Keywords:
-      cat("\\keyword{FILL UP}\n\n", file = rdPath, append = TRUE)
+      metl <- list(fun = defFun, method = "default",  call = funArgs$call, 
+                   args = funArgs$args)
+      funList[[defFun]] <- metl
+      idSkip <- c(idSkip, idsDef)
     }
-    
+    remFuns <- funNames[-idSkip]
+  } else {
+    remFuns <- funNames
   }
   
+  # Find remaining functions:
+  nrem <- length(remFuns) 
+  if (nrem > 0) {
+    for (irem in 1:nrem) {
+      ifun <- remFuns[irem]
+      funArgs <- .ExtractArgs(ifun)
+      if (grepl("[[:alnum:]]{1,}[[:punct:]]{1}[[:alnum:]]{1,}", 
+                ifun)) {
+        nameMet <- strsplit(ifun, "[[:punct:]]{1}")[[1]]
+      } else {
+        nameMet <- c(ifun, NA)
+      }
+      if (imet == 1 | !nameMet[2] %in% funTab$method | is.na(nameMet[2])) {
+        idRdCount <- idRdCount + 1
+        idRd <- idRdCount
+      } else if (nameMet[2] %in% funTab$method) {
+        idRd <- funTab$idRd[which(funTab$method == nameMet[2])[1]]
+      }
+      temp <- data.frame(name = ifun, method = nameMet[2], alias = ifun,
+                         idRd = idRd, stringsAsFactors = FALSE)
+      if (idRdCount - 1 == 0) {
+        funTab <- temp
+      } else {
+        funTab <- rbind(funTab, temp)
+      }
+      
+      metl <- list(fun = nameMet[1], method = nameMet[2], call = funArgs$call, 
+                   args = funArgs$args)
+      funList[[ifun]] <- metl
+    }
+  }
+  
+  detach("tempenv")
+  
+  # Index of Rd files:
+  idRdVec <- sort(unique(funTab$idRd))
+  
+  for (iRd in idRdVec) {
+    
+    # Find functions for Rd file:
+    idFuns <- which(funTab$idRd == iRd)
+    
+    # First function:
+    fn <- funTab$name[idFuns[1]]
+    
+    # Path to .Rd file:
+    rdPath <- sprintf("%spkg/man/%s.Rd", pkgDir, fn)
+    
+    # Name and aliases:
+    cat(sprintf("\\name{%s}\n", fn), file = rdPath)
+    cat(sprintf("\\alias{%s}\n", fn), file = rdPath, 
+        append = TRUE)
+    for (iif in idFuns) {
+      cat(sprintf("\\alias{%s}\n", funTab$alias[iif]), file = rdPath, 
+          append = TRUE)
+    }
+    
+    # Title and description:
+    cat("\n\\title{\n FILL UP\n}\n\n\\description{\n FILL UP\n}\n\n", 
+        file = rdPath, append = TRUE)
+    
+    
+    # Usage:
+    cat("\\usage{\n ", file = rdPath, append = TRUE)
+    for (iif in idFuns) {
+      if (!is.na(funTab$method[iif])) {
+        if (funTab$method[iif] == "default") {
+          cat(sprintf("%s(%s, \\dots)\n\n", funTab$name[iif], 
+                      gsub("[[:space:]]", "", funList[[iif]]$args[1])), 
+              file = rdPath, append = TRUE)
+        }
+        cat(sprintf("\\method{%s}{%s}%s\n\n", funList[[iif]]$fun, 
+                    funList[[iif]]$method, funList[[iif]]$call), file = rdPath,
+            append = TRUE)
+      } else {
+        cat(sprintf("\\%s%s\n\n", funList[[iif]]$fun, funList[[iif]]$call), 
+            file = rdPath, append = TRUE)
+      }
+    }
+    cat("}\n\n ", file = rdPath, append = TRUE)
+    
+    # Arguments:
+    for (iif in idFuns) {
+      iargs <- gsub("[[:space:]]", "", funList[[iif]]$args)
+      temp <- data.frame(args = iargs, id = 1:length(iargs))
+      if (iif == idFuns[1]) {
+        argOrd <- temp
+      } else {
+        argOrd <- rbind(argOrd, temp)
+      }
+    }
+    allArgs <- unique(argOrd$args[sort.int(argOrd$id, index.return = TRUE)$ix])
+    iddots <- which(allArgs == "...")
+    if (length(iddots) == 1) {
+      allArgs <- c(allArgs[-iddots], "\\dots")
+    }
+    
+    cat("\\arguments{\n", file = rdPath, append = TRUE)
+    for (ar in allArgs) {
+      cat(sprintf("\t\\item{%s }{FILL UP}\n\n", ar), file = rdPath, 
+          append = TRUE)
+    }
+    
+    cat("}\n\n", file = rdPath, append = TRUE)
+    
+    # Details:
+    cat("\\details{\nFILL UP \n}\n\n", file = rdPath, append = TRUE)
+    
+    # Value:
+    cat("\\value{\n\t\\item{fill up }{FILL UP}\n}\n\n", file = rdPath, 
+        append = TRUE)
+    
+    # Author:
+    if (is.null(authorNames)) {
+      cat("\\author{AUTHOR(S) NAME(S) \\email{authoremail}}\n\n", 
+          file = rdPath, append = TRUE)
+    } else {
+      cat(sprintf("\\author{%s}\n\n", paste(sprintf("%s \\email{%s}", 
+                                                    authorNames, 
+                                                    authorEmails), 
+                                            collapse = ", ")), 
+          file = rdPath, append = TRUE)
+    }
+    
+    # See also:
+    cat("\\seealso{FILL UP}\n\n", file = rdPath, append = TRUE)
+    
+    # Examples:
+    cat("\\examples{FILL UP}\n\n", file = rdPath, append = TRUE)
+    
+    # Keywords:
+    cat("\\keyword{FILL UP}\n\n", file = rdPath, append = TRUE)
+  }
 }
+
+# Hidden function to extract function arguments:
+.ExtractArgs <- function(fn) {
+  fnchar <- deparse(get(fn))
+  
+  notp <- FALSE
+  ni <- 0
+  while (!notp) {
+    ni <- ni + 1
+    notp <- grepl(")", fnchar[ni])
+  }
+  
+  arcall <- c()
+  arargs <- c()
+  for (ii in 1:ni) {
+    ar1 <- fnchar[ii]
+    if (ii == 1) {
+      ar <- gsub(pattern = "function[[:space:]]{1}[[:punct:]]", 
+                 replacement = "", x = ar1)
+      ar1 <- gsub(pattern = "function[[:space:]]{1}", replacement = "", 
+                  x = ar1)
+    } else {
+      ar <- gsub(pattern = "[[:space:]]{2,}", replacement = "", x = ar1)
+      ar1 <- gsub(pattern = "[[:space:]]{2,}", replacement = "", x = ar1)
+    }
+    if (ii == ni) {
+      ar1 <- gsub(pattern = ") ", replacement = ")", x = ar1)
+      ar <- gsub(pattern = ") ", replacement = "", x = ar)
+    }
+    ar <- gsub(pattern = "[[:space:]]{1}[[:punct:]]{1}[[:space:]]{1}[[:alpha:]]{2,}", replacement = "", x = ar)
+    arcall <- paste(arcall, ar1, collapse = ", ")
+    arargs <- paste(arargs, ar, collapse = ", ")
+  }
+  
+  arargs <- strsplit(arargs, ", ")[[1]]
+  for (jj in 1:length(arargs)) {
+    if (grepl(" = ", arargs[jj])) {
+      arargs[jj] <- strsplit(arargs[jj], " = ")[[1]][1] 
+    }
+  }
+  arlist <- list(call = arcall, args = arargs)
+  return(arlist)
+}
+
