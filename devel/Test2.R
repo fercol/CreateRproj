@@ -7,14 +7,18 @@ library(CreateRproj)
 mainDir <- "~/FERNANDO/PROJECTS/4.PACKAGES/"
 
 # package name:
-pkgName <- "testudinesSenescenceRcode"
+pkgName <- "ageToSize"
 
 # Create package:
 CreateRpackage(pkgName = pkgName, mainDir = mainDir, git = TRUE, 
                RstProj = TRUE)
 
 # Create package description:
-CreatePkgDescrip(pkgName = pkgName, mainDir = mainDir)
+descrTitle <- "Estimation of age to size functional forms with quantiles"
+CreatePkgDescrip(pkgName = pkgName, mainDir = mainDir, title = descrTitle,
+                 version = "1.0.0", 
+                 authors = "Fernando Colchero <fernando_colchero@eva.mpg.de>",
+                 maintainer = "Fernando Colchero <fernando_colchero@eva.mpg.de>")
 
 # Script:
 

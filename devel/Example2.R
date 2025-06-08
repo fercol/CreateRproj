@@ -3,8 +3,8 @@ library(CreateRproj)
 # Main directory:
 mainDir <- "~/FERNANDO/PROJECTS/1.ACTIVE/BaboonEarlyAdversity/analysis/"
 mainDir <- "~/FERNANDO/PROJECTS/1.ACTIVE/ContraceptionOnMort/"
-mainDir <- "/Users/fernando_colchero/Dropbox/00.Personal/FERNANDO/PROJECTS/1.ACTIVE/DormouseMort/"
-mainDir <- "~/Nextcloud/Shared/Projects/"
+mainDir <- "~/FERNANDO/PROJECTS/4.PACKAGES/"
+# mainDir <- "~/Nextcloud/Shared/Projects/"
 
 # set wd:
 setwd(mainDir)
