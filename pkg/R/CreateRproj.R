@@ -464,11 +464,13 @@ CreateRdFiles <- function(pkgName, mainDir, scriptFile, authorNames = NULL,
                       gsub("[[:space:]]", "", funList[[iif]]$args[1])), 
               file = rdPath, append = TRUE)
         }
+        icall <- gsub("[[:punct:]]{3}", "\\\\dots", funList[[iif]]$call)
         cat(sprintf("\\method{%s}{%s}%s\n\n", funList[[iif]]$fun, 
-                    funList[[iif]]$method, funList[[iif]]$call), file = rdPath,
+                    funList[[iif]]$method, icall), file = rdPath,
             append = TRUE)
       } else {
-        cat(sprintf("\\%s%s\n\n", funList[[iif]]$fun, funList[[iif]]$call), 
+        icall <- gsub("[[:punct:]]{3}", "\\\\dots", funList[[iif]]$call)
+        cat(sprintf("\\%s%s\n\n", funList[[iif]]$fun, icall), 
             file = rdPath, append = TRUE)
       }
     }
